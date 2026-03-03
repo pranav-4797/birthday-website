@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday! 🎉</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎉</text></svg>">
+
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;600&family=Fredoka+One&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<style>
+:root{--dark-pink:#d63384;--glass:rgba(255,255,255,0.65);}
+
+body,html{
+margin:0;padding:0;font-family:'Poppins',sans-serif;
+background:url('background.jpg') no-repeat center center fixed;
+background-size:cover;height:100vh;width:100vw;overflow:hidden;color:#3d2b1f;
+}
+
+/* ── fallback gradient if background.jpg is missing ── */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background:linear-gradient(135deg,#ffe0ec,#ffd6f0,#f9a8d4);
+  z-index:-1;
+}
+
+/* 🌹 PURE CSS ROSE PETALS */
+.petal{
+position:fixed;
+top:-10vh;
+width:14px;
+height:18px;
+background:radial-gradient(circle at 30% 30%, #ff6b81, #d63384);
+border-radius:60% 60% 60% 0;
+opacity:.85;
+pointer-events:none;
+animation:fall linear infinite;
+}
+@keyframes fall{
+0%{transform:translateY(-10vh) rotate(0deg);}
+100%{transform:translateY(110vh) rotate(360deg);}
+}
+
+/* intro */
+#intro-overlay{
+position:fixed;top:0;left:0;width:100%;height:100%;
+background:linear-gradient(45deg,#ff85a2,#d63384);
+z-index:9999;display:flex;justify-content:center;align-items:center;
+transition:opacity 1.5s ease;
+}
+
+/* pages */
+.page{
+position:absolute;width:100%;height:100%;
+display:flex;flex-direction:column;justify-content:center;align-items:center;
+text-align:center;
+opacity:0;transform:translateY(25px) scale(.97);
+transition:opacity .7s ease, transform .7s ease;
+pointer-events:none;padding:20px;box-sizing:border-box;
+overflow-y:auto;
+}
+.page.active{
+opacity:1;transform:translateY(0) scale(1);
+pointer-events:all;
+}
+
+/* glass */
+.glass-card{
+background:var(--glass);
+backdrop-filter:blur(15px);
+border-radius:30px;
+padding:30px;
+border:1px solid rgba(255,255,255,.5);
+width:90%;max-width:650px;max-height:75vh;
+overflow-y:auto;
+transition:.4s;
+}
+.glass-card:hover{box-shadow:0 25px 70px rgba(0,0,0,.25);}
+
+/* profile */
+.profile-frame{
+width:240px;height:240px;border-radius:50%;
+border:6px solid white;margin-bottom:20px;overflow:hidden;
+box-shadow:0 0 40px rgba(214,51,132,.7);
+transition:.5s;cursor:pointer;
+}
+.profile-frame:hover{
+box-shadow:0 0 70px rgba(214,51,132,1);
+transform:scale(1.05);
+}
+.profile-frame img{width:100%;height:100%;object-fit:cover;}
+
+h1{font-family:'Dancing Script';font-size:3.5rem;margin:10px 0;}
+
+/* separate nav buttons */
+nav{
+position:fixed;
+bottom:30px;
+left:50%;
+transform:translateX(-50%);
+display:flex;
+gap:22px;
+z-index:1000;
+}
+
+nav a{
+background:rgba(255,255,255,.9);
+padding:12px 24px;
+border-radius:40px;
+color:var(--dark-pink);
+font-weight:600;
+text-decoration:none;
+cursor:pointer;
+box-shadow:0 10px 25px rgba(0,0,0,.2);
+transition:.3s;
+backdrop-filter:blur(6px);
+}
+nav a:hover{
+transform:translateY(-3px) scale(1.07);
+box-shadow:0 15px 35px rgba(214,51,132,.35);
+}
+nav a:active{transform:scale(.9);}
+
+/* memory cards */
+.memory-wrap{display:flex;gap:30px;justify-content:center;flex-wrap:wrap;margin-top:20px;}
+.memory-card{
+background:white;padding:12px;border-radius:8px;
+box-shadow:0 18px 40px rgba(0,0,0,.15);
+width:180px;cursor:pointer;
+transition:.35s;
+transform:rotate(-2deg);
+}
+.memory-card:nth-child(2n){transform:rotate(2deg);}
+.memory-card img{width:100%;height:200px;object-fit:cover;border-radius:6px;}
+.memory-card p{font-family:'Dancing Script';margin-top:10px;font-size:1.2rem;}
+.memory-card:hover{
+transform:scale(1.05) rotate(0deg);
+box-shadow:0 30px 60px rgba(214,51,132,.35);
+}
+
+/* sparkles */
+.sparkle{
+position:fixed;width:4px;height:4px;border-radius:50%;
+background:white;opacity:.6;
+animation:twinkle 3s infinite;
+pointer-events:none;
+}
+@keyframes twinkle{
+0%,100%{opacity:.3;transform:scale(1);}
+50%{opacity:1;transform:scale(1.4);}
+}
+
+#secret-final{
+position:fixed;top:0;left:0;width:100%;height:100%;
+background:rgba(0,0,0,0.85);
+display:flex;justify-content:center;align-items:center;text-align:center;
+font-family:'Dancing Script';font-size:3rem;color:white;
+opacity:0;pointer-events:none;transition:1s;z-index:6000;
+padding:30px;box-sizing:border-box;
+}
+#secret-final.show{opacity:1;pointer-events:all}
+
+/* ===== OUR SONG BUTTON ===== */
+#song-btn{
+  position:fixed;
+  bottom:100px;
+  left:25px;
+  width:58px;height:58px;
+  background:linear-gradient(135deg,#ff85a2,#d63384);
+  border-radius:50%;
+  display:flex;justify-content:center;align-items:center;
+  font-size:1.6rem;
+  cursor:pointer;
+  z-index:2000;
+  box-shadow:0 8px 25px rgba(214,51,132,.5);
+  animation:songPulse 2s infinite;
+  border:none;
+  transition:.3s;
+}
+#song-btn:hover{transform:scale(1.12);}
+@keyframes songPulse{
+  0%,100%{box-shadow:0 8px 25px rgba(214,51,132,.5);}
+  50%{box-shadow:0 8px 40px rgba(214,51,132,.9),0 0 0 10px rgba(214,51,132,.1);}
+}
+
+/* visualizer panel */
+#song-panel{
+  position:fixed;
+  bottom:170px;
+  left:20px;
+  width:260px;
+  background:rgba(255,255,255,0.15);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,.4);
+  border-radius:24px;
+  padding:18px 20px;
+  z-index:1999;
+  box-shadow:0 20px 60px rgba(214,51,132,.25);
+  opacity:0;pointer-events:none;
+  transform:translateY(15px) scale(.95);
+  transition:opacity .4s ease,transform .4s ease;
+}
+#song-panel.open{opacity:1;pointer-events:all;transform:translateY(0) scale(1);}
+#song-title{
+  font-family:'Dancing Script';
+  font-size:1.4rem;
+  color:white;
+  text-align:center;
+  margin-bottom:4px;
+  text-shadow:0 2px 8px rgba(0,0,0,.2);
+}
+#song-sub{
+  font-family:'Poppins';
+  font-size:0.7rem;
+  color:rgba(255,255,255,.7);
+  text-align:center;
+  margin-bottom:14px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+#visualizer{
+  display:flex;
+  gap:5px;
+  align-items:flex-end;
+  justify-content:center;
+  height:50px;
+}
+.v-bar{
+  width:8px;
+  border-radius:4px 4px 0 0;
+  background:linear-gradient(to top,#d63384,#ff85a2);
+  animation:vBounce 0.6s ease-in-out infinite alternate;
+  box-shadow:0 0 8px rgba(214,51,132,.6);
+}
+@keyframes vBounce{
+  from{transform:scaleY(0.2);}
+  to{transform:scaleY(1);}
+}
+#song-toggle{
+  display:block;width:100%;margin-top:14px;
+  background:linear-gradient(135deg,#ff85a2,#d63384);
+  color:white;border:none;border-radius:50px;
+  padding:9px 0;font-family:'Poppins';font-weight:600;font-size:0.85rem;
+  cursor:pointer;transition:.3s;
+}
+#song-toggle:hover{transform:scale(1.04);}
+
+/* countdown boxes */
+.cd-box{
+  background: rgba(255,255,255,0.25);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.5);
+  border-radius: 20px;
+  padding: 16px 22px;
+  min-width: 75px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(214,51,132,0.2), inset 0 1px 0 rgba(255,255,255,0.6);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.cd-box:hover{
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(214,51,132,0.35), inset 0 1px 0 rgba(255,255,255,0.6);
+}
+.cd-box span{
+  display:block;
+  font-family:'Fredoka One';
+  font-size:2.2rem;
+  line-height:1;
+  color: var(--dark-pink);
+  text-shadow: 0 0 20px rgba(214,51,132,0.4);
+}
+.cd-box label{
+  font-family:'Poppins';
+  font-size:0.72rem;
+  font-weight:600;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color: #c2185b;
+  opacity:0.85;
+  margin-top:4px;
+  display:block;
+}
+
+/* ===== RESPONSIVE: TABLET (768px - 1024px) ===== */
+@media (min-width: 768px) and (max-width: 1024px){
+  h1{ font-size: 4rem; }
+  .glass-card{ max-width: 85%; max-height: 70vh; padding: 35px; }
+  .profile-frame{ width: 200px; height: 200px; }
+  .memory-wrap{ gap: 20px; }
+  .memory-card{ width: 160px; }
+  .memory-card img{ height: 175px; }
+  nav{ gap: 28px; bottom: 28px; }
+  nav a{ padding: 14px 30px; font-size: 1rem; }
+  #song-btn{ width: 64px; height: 64px; font-size: 1.8rem; bottom: 110px; left: 30px; }
+  #song-panel{ width: 280px; bottom: 185px; left: 28px; }
+  .cd-box{ min-width: 80px; padding: 16px 24px; }
+  .cd-box span{ font-size: 2.4rem; }
+  #prescreen-question{ font-size: 3rem; }
+  #btn-yes, #btn-no{ font-size: 1.3rem; padding: 16px 50px; }
+}
+
+/* ===== RESPONSIVE: LAPTOP (1025px+) ===== */
+@media (min-width: 1025px){
+  h1{ font-size: 4.5rem; }
+  .glass-card{ max-width: 750px; max-height: 72vh; padding: 40px 45px; }
+  .profile-frame{ width: 260px; height: 260px; }
+  .memory-wrap{ gap: 28px; }
+  .memory-card{ width: 190px; }
+  .memory-card img{ height: 210px; }
+  .memory-card p{ font-size: 1.1rem; }
+  nav{ gap: 30px; bottom: 35px; }
+  nav a{ padding: 14px 32px; font-size: 1rem; }
+  #song-btn{ width: 65px; height: 65px; font-size: 1.9rem; bottom: 110px; left: 35px; }
+  #song-panel{ width: 290px; bottom: 188px; left: 32px; }
+  #song-title{ font-size: 1.6rem; }
+  .cd-box{ min-width: 88px; padding: 18px 26px; }
+  .cd-box span{ font-size: 2.6rem; }
+  .cd-box label{ font-size: 0.78rem; }
+  #prescreen-question{ font-size: 3.2rem; max-width: 700px; }
+  #btn-yes, #btn-no{ font-size: 1.4rem; padding: 17px 55px; }
+  #countdown-wrap{ gap: 20px; }
+  #typewriter-area{ font-size: 1.15rem; line-height: 2; }
+  #secret-final{ font-size: 3.5rem; }
+}
+
+/* ===== RESPONSIVE: LARGE LAPTOP / DESKTOP (1400px+) ===== */
+@media (min-width: 1400px){
+  .glass-card{ max-width: 860px; padding: 45px 55px; }
+  .memory-card{ width: 200px; }
+  .memory-card img{ height: 220px; }
+  h1{ font-size: 5rem; }
+  .cd-box span{ font-size: 2.8rem; }
+  .cd-box{ min-width: 95px; }
+}
+
+/* ===== PRE-SCREEN OVERLAY ===== */
+#prescreen{
+position:fixed;top:0;left:0;width:100%;height:100%;
+background:linear-gradient(135deg,#ff85a2,#d63384,#c2185b);
+z-index:99999;
+display:flex;flex-direction:column;justify-content:center;align-items:center;
+text-align:center;padding:20px;box-sizing:border-box;
+transition:opacity 0.8s ease;
+}
+#prescreen-question{
+font-family:'Fredoka One';font-size:2.8rem;color:white;
+margin-bottom:40px;text-shadow:0 2px 10px rgba(0,0,0,.2);
+line-height:1.3;max-width:600px;
+}
+#prescreen-btns{
+display:flex;gap:30px;align-items:center;justify-content:center;flex-wrap:wrap;
+}
+#btn-yes{
+background:white;color:var(--dark-pink);
+font-family:'Poppins';font-weight:700;font-size:1.2rem;
+padding:14px 40px;border:none;border-radius:50px;
+cursor:pointer;
+box-shadow:0 10px 30px rgba(0,0,0,.25);
+transition:transform 0.4s ease, font-size 0.4s ease, padding 0.4s ease;
+}
+#btn-yes:hover{transform:scale(1.08);}
+#btn-no{
+background:transparent;color:white;
+font-family:'Poppins';font-weight:600;font-size:1.2rem;
+padding:14px 40px;border:3px solid white;border-radius:50px;
+cursor:pointer;
+transition:.3s;
+}
+#btn-no:hover{background:rgba(255,255,255,.15);}
+</style>
+</head>
+
+<body>
+
+<!-- ============================================================
+     🎂 BIRTHDAY WEBSITE TEMPLATE
+     ============================================================
+     HOW TO CUSTOMISE:
+     1. Replace BIRTHDAY_PERSON_NAME with the birthday person's name
+     2. Replace YOUR_NAME with your name (for the letter)
+     3. Set ANNIVERSARY_DATE to your special date (format: YYYY-MM-DD)
+     4. Replace profile.jpg with the birthday person's photo
+     5. Replace memory1.jpeg … memory12.jpeg with your own photos
+     6. Edit the MEMORY CAPTIONS in the Memories section
+     7. Replace music.mp3 with your chosen song
+     8. Edit the LETTER TEXT in the textParts array in the <script>
+     9. Edit the SECRET MESSAGE in the #secret-final div
+    10. Optionally replace background.jpg with your own background
+     ============================================================ -->
+
+<!-- PRE-SCREEN -->
+<div id="prescreen">
+<div id="prescreen-question">Are you really sure you want to see what I made for you? 🥺</div>
+<div id="prescreen-btns">
+  <button id="btn-yes" onclick="handleYes()">Yes 💖</button>
+  <button id="btn-no" onclick="handleNo()">No</button>
+</div>
+</div>
+
+<div id="intro-overlay">
+<h1 style="color:white;font-family:'Dancing Script';font-size:3.5rem;">Ready for your surprise? 🎉</h1>
+</div>
+
+<!-- ✏️ EDIT: Change this secret message -->
+<div id="secret-final" onclick="closeSecret()">You are so special to me ❤️<br><span style="font-size:1.5rem;opacity:.8;">— tap to close</span></div>
+<div id="sparkles"></div>
+
+<!-- ✏️ EDIT: Replace music.mp3 with your song file -->
+<audio id="bg-music" loop>
+<source src="music.mp3" type="audio/mpeg">
+</audio>
+
+<!-- ============================================================
+     HOME PAGE
+     ============================================================ -->
+<div id="home" class="page active">
+<!-- ✏️ EDIT: Replace profile.jpg with the birthday person's photo -->
+<div class="profile-frame" onclick="heartBurst(event)">
+  <img src="profile.jpg" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22><circle cx=%22100%22 cy=%22100%22 r=%22100%22 fill=%22%23ffb6c1%22/><text x=%2250%25%22 y=%2255%25%22 font-size=%2280%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>🎂</text></svg>'">
+</div>
+<!-- ✏️ EDIT: Replace "Birthday Person" with their name -->
+<h1>Happy Birthday, Birthday Person!</h1>
+<!-- ✏️ EDIT: Change subtitle / relationship label -->
+<p style="font-size:1.4rem;font-weight:600;color:var(--dark-pink);">Wishing you the most magical day ❤️</p>
+</div>
+
+<!-- ============================================================
+     MEMORIES PAGE
+     ============================================================ -->
+<div id="memories" class="page">
+<div class="glass-card">
+<h2 style="font-family:'Dancing Script';font-size:3rem;">Our Moments ✨</h2>
+<div class="memory-wrap">
+
+<!-- ✏️ EDIT: Replace memory1.jpeg … and update captions -->
+<div class="memory-card" onclick="openPreview('memory1.jpeg')"><img src="memory1.jpeg" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 180 200%22><rect width=%22180%22 height=%22200%22 fill=%22%23ffe0ec%22 rx=%226%22/><text x=%2250%25%22 y=%2250%25%22 font-size=%2260%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>📸</text></svg>'"><p>A moment I'll never forget 🤍</p></div>
+<div class="memory-card" onclick="openPreview('memory2.jpeg')"><img src="memory2.jpeg" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 180 200%22><rect width=%22180%22 height=%22200%22 fill=%22%23ffe0ec%22 rx=%226%22/><text x=%2250%25%22 y=%2250%25%22 font-size=%2260%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>📸</text></svg>'"><p>Your smile lights up the room ✨</p></div>
+<div class="memory-card" onclick="openPreview('memory3.jpeg')"><img src="memory3.jpeg" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 180 200%22><rect width=%22180%22 height=%22200%22 fill=%22%23ffe0ec%22 rx=%226%22/><text x=%2250%25%22 y=%2250%25%22 font-size=%2260%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>📸</text></svg>'"><p>The night I realised how lucky I am 🌙</p></div>
+<div class="memory-card" onclick="openPreview('memory4.jpeg')"><img src="memory4.jpeg" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 180 200%22><rect width=%22180%22 height=%22200%22 fill=%22%23ffe0ec%22 rx=%226%22/><text x=%2250%25%22 y=%2250%25%22 font-size=%2260%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>📸</text></svg>'"><p>Peace sign but you're my everything 💫</p></div>
+<div class="memory-card" onclick="openPreview('memory5.jpeg')"><img src="memory5.jpeg" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 180 200%22><rect width=%22180%22 height=%22200%22 fill=%22%23ffe0ec%22 rx=%226%22/><text x=%2250%25%22 y=%2250%25%22 font-size=%2260%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>📸</text></svg>'"><p>Every picture of you feels like home 🏡</p></div>
+<div class="memory-card" onclick="openPreview('memory6.jpeg')"><img src="memory6.jpeg" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 180 200%22><rect width=%22180%22 height=%22200%22 fill=%22%23ffe0ec%22 rx=%226%22/><text x=%2250%25%22 y=%2250%25%22 font-size=%2260%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>📸</text></svg>'"><p>A random day that became a favourite memory 🌌</p></div>
+<div class="memory-card" onclick="openPreview('memory7.jpeg')"><img src="memory7.jpeg" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 180 200%22><rect width=%22180%22 height=%22200%22 fill=%22%23ffe0ec%22 rx=%226%22/><text x=%2250%25%22 y=%2250%25%22 font-size=%2260%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>📸</text></svg>'"><p>Our story, just two people choosing each other 💞</p></div>
+<div class="memory-card" onclick="openPreview('memory8.jpeg')"><img src="memory8.jpeg" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 180 200%22><rect width=%22180%22 height=%22200%22 fill=%22%23ffe0ec%22 rx=%226%22/><text x=%2250%25%22 y=%2250%25%22 font-size=%2260%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>📸</text></svg>'"><p>Even silence feels beautiful with you 💕</p></div>
+<div class="memory-card" onclick="openPreview('memory9.jpeg')"><img src="memory9.jpeg" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 180 200%22><rect width=%22180%22 height=%22200%22 fill=%22%23ffe0ec%22 rx=%226%22/><text x=%2250%25%22 y=%2250%25%22 font-size=%2260%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>📸</text></svg>'"><p>Wherever we go, it becomes special 🌍</p></div>
+<div class="memory-card" onclick="openPreview('memory10.jpeg')"><img src="memory10.jpeg" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 180 200%22><rect width=%22180%22 height=%22200%22 fill=%22%23ffe0ec%22 rx=%226%22/><text x=%2250%25%22 y=%2250%25%22 font-size=%2260%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>📸</text></svg>'"><p>Little moments that became forever memories 📖</p></div>
+<div class="memory-card" onclick="openPreview('memory11.jpeg')"><img src="memory11.jpeg" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 180 200%22><rect width=%22180%22 height=%22200%22 fill=%22%23ffe0ec%22 rx=%226%22/><text x=%2250%25%22 y=%2250%25%22 font-size=%2260%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>📸</text></svg>'"><p>You and me — always where it belongs ❤️</p></div>
+<div class="memory-card" onclick="openPreview('memory12.jpeg')"><img src="memory12.jpeg" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 180 200%22><rect width=%22180%22 height=%22200%22 fill=%22%23ffe0ec%22 rx=%226%22/><text x=%2250%25%22 y=%2250%25%22 font-size=%2260%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>📸</text></svg>'"><p>Us… just us… and that's enough 💘</p></div>
+
+<!-- COUNTDOWN TIMER -->
+<div style="margin-top:35px;width:100%;display:flex;justify-content:center;">
+<div style="background:rgba(255,255,255,0.3);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:28px;padding:28px 30px;border:1px solid rgba(255,255,255,0.6);box-shadow:0 20px 60px rgba(214,51,132,.15),inset 0 1px 0 rgba(255,255,255,0.8);text-align:center;max-width:600px;width:90%;">
+  <!-- ✏️ EDIT: Change "Friends Since" label and ANNIVERSARY_DATE in the script below -->
+  <div id="countdown-label" style="font-family:'Dancing Script';font-size:1.8rem;color:var(--dark-pink);margin-bottom:14px;">💞 Friends Since DD Mon YYYY</div>
+  <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;" id="countdown-wrap">
+    <div class="cd-box"><span id="cd-days">0</span><label>Days</label></div>
+    <div class="cd-box"><span id="cd-hours">0</span><label>Hours</label></div>
+    <div class="cd-box"><span id="cd-mins">0</span><label>Minutes</label></div>
+    <div class="cd-box"><span id="cd-secs">0</span><label>Seconds</label></div>
+  </div>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
+<!-- ============================================================
+     LETTER / NOTE PAGE
+     ============================================================ -->
+<div id="letter" class="page">
+<div class="glass-card" id="letter-card">
+<!-- ✏️ EDIT: Change salutation -->
+<h2 style="font-family:'Dancing Script';font-size:3rem;">Dear Birthday Person 😘</h2>
+<div id="typewriter-area" style="text-align:left;line-height:1.9;font-size:1.1rem;"></div>
+</div>
+</div>
+
+<!-- ===== OUR SONG ===== -->
+<button id="song-btn" onclick="toggleSong()">🎵</button>
+<div id="song-panel">
+  <!-- ✏️ EDIT: Change song title / subtitle -->
+  <div id="song-title">Our Song 🎶</div>
+  <div id="song-sub">Playing for you ♡</div>
+  <div id="visualizer">
+    <div class="v-bar" style="height:30px;animation-delay:0s;"></div>
+    <div class="v-bar" style="height:45px;animation-delay:.1s;"></div>
+    <div class="v-bar" style="height:20px;animation-delay:.2s;"></div>
+    <div class="v-bar" style="height:50px;animation-delay:.05s;"></div>
+    <div class="v-bar" style="height:35px;animation-delay:.15s;"></div>
+    <div class="v-bar" style="height:25px;animation-delay:.3s;"></div>
+    <div class="v-bar" style="height:45px;animation-delay:.08s;"></div>
+    <div class="v-bar" style="height:38px;animation-delay:.22s;"></div>
+    <div class="v-bar" style="height:28px;animation-delay:.12s;"></div>
+    <div class="v-bar" style="height:50px;animation-delay:.18s;"></div>
+  </div>
+  <button id="song-toggle" onclick="togglePlayPause()">⏸ Pause</button>
+</div>
+
+<nav>
+<a onclick="showPage('home')">Home</a>
+<a onclick="showPage('memories')">Memories</a>
+<a onclick="showPage('letter')">My Note</a>
+</nav>
+
+<script>
+/* ============================================================
+   ✏️  CUSTOMISATION VARIABLES — edit these!
+   ============================================================ */
+
+// Name displayed in the pre-screen question
+const BIRTHDAY_PERSON_NAME = "Birthday Person";
+
+// Date the countdown counts UP from (your friendship / relationship start)
+// Format: 'YYYY-MM-DDTHH:MM:SS'
+const ANNIVERSARY_DATE = '2020-01-01T00:00:00';
+
+// Label shown above the countdown boxes
+const COUNTDOWN_LABEL = '💞 Friends Since 1 Jan 2020';
+
+// ✏️ EDIT: Your personal letter / note
+// Each object has:
+//   t        — the text to type out (\n becomes a line break)
+//   center   — true to centre the text, false for left-aligned
+const textParts = [
+  {
+    t: `From the very first moment you came into my life 🌍💞, every day became brighter and more beautiful because of you 📖💕.\n\nHere are some of the moments that mean the world to me:\n📍 Day 1 – The day our story began 💫\n📍 A rainy afternoon – laughing until our sides hurt ☔😂\n📍 That road trip – windows down, music loud 🎶🚗\n📍 The day you showed up when I needed you most ❤️\n📍 Right now – celebrating YOU on your special day 🎂\n\n`,
+    center: false
+  },
+  {
+    t: `You make ordinary days feel extraordinary.\nThank you for just being YOU.\n\n`,
+    center: true
+  },
+  {
+    t: `Happy Birthday! You are so loved, so appreciated, and so incredibly special. Here's to you and every amazing thing still to come 🥂✨🎉`,
+    center: false
+  }
+];
+
+// ✏️ EDIT: The secret message shown when the letter card is clicked after typing finishes
+const SECRET_MESSAGE = `You mean the world to me ❤️<br><span style="font-size:1.5rem;opacity:.8;">— tap to close</span>`;
+
+/* ============================================================
+   PRE-SCREEN LOGIC
+   ============================================================ */
+const questions = [
+  `Are you really sure you want to see what I made for you? 🥺`,
+  `Okay okay… but are you REALLY sure? Like pinky-promise sure? 🤞💖`,
+  `Hmm… you seem curious 👀 Are you absolutely positively sure? ✨`,
+  `Last chance to back out… just kidding 😂 Are you sure though? 🥰`,
+  `Alright, one final time — do you REALLY want to see it? 💝`
+];
+let noCount = 0;
+let yesCount = 0;
+let yesBaseSize = 1.2;
+
+function handleYes(){
+  yesCount++;
+  if(yesCount < 5){
+    const qIndex = Math.min(yesCount, questions.length - 1);
+    document.getElementById('prescreen-question').textContent = questions[qIndex];
+    let newSize = yesBaseSize + (yesCount * 0.4);
+    let newPad = 14 + (yesCount * 6);
+    const btnYes = document.getElementById('btn-yes');
+    btnYes.style.fontSize = newSize + 'rem';
+    btnYes.style.padding = newPad + 'px ' + (40 + yesCount * 10) + 'px';
+    noCount = 0;
+  } else {
+    const btnYes = document.getElementById('btn-yes');
+    btnYes.style.fontSize = yesBaseSize + 'rem';
+    btnYes.style.padding = '14px 40px';
+    const ps = document.getElementById('prescreen');
+    ps.style.opacity = '0';
+    setTimeout(()=>{ ps.style.display='none'; startWebsite(); }, 800);
+  }
+}
+
+function handleNo(){
+  noCount++;
+  if(noCount >= questions.length) noCount = questions.length - 1;
+  document.getElementById('prescreen-question').textContent = questions[noCount];
+  let newSize = yesBaseSize + (noCount * 0.4);
+  let newPad = 14 + (noCount * 6);
+  const btnYes = document.getElementById('btn-yes');
+  btnYes.style.fontSize = newSize + 'rem';
+  btnYes.style.padding = newPad + 'px ' + (40 + noCount * 10) + 'px';
+}
+
+function startWebsite(){
+  /* 🌹 petals */
+  for(let i=0;i<25;i++){
+    const p=document.createElement("div");
+    p.className="petal";
+    p.style.left=Math.random()*100+"vw";
+    p.style.animationDuration=(7+Math.random()*6)+"s";
+    p.style.animationDelay=Math.random()*5+"s";
+    document.body.appendChild(p);
+  }
+  /* sparkles */
+  const sparkleBox=document.getElementById('sparkles');
+  for(let i=0;i<40;i++){
+    const s=document.createElement('div');
+    s.className='sparkle';
+    s.style.left=Math.random()*100+'vw';
+    s.style.top=Math.random()*100+'vh';
+    sparkleBox.appendChild(s);
+  }
+  setTimeout(()=>{
+    const overlay=document.getElementById('intro-overlay');
+    overlay.style.opacity='0';
+    setTimeout(()=>overlay.remove(),1500);
+    confetti({particleCount:150,spread:70,origin:{y:0.6}});
+    setTimeout(()=>showPage('memories'),5000);
+  },2000);
+}
+
+/* ============================================================
+   PAGE NAVIGATION
+   ============================================================ */
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  setTimeout(()=>{
+    document.getElementById(id).classList.add('active');
+    if(id==='letter') startTyping();
+  },100);
+}
+
+/* ============================================================
+   MUSIC
+   ============================================================ */
+const music=document.getElementById("bg-music");
+document.addEventListener("click",()=>music.play(),{once:true});
+
+/* ============================================================
+   HEART BURST ON PHOTO CLICK
+   ============================================================ */
+function heartBurst(e){
+  confetti({particleCount:40,spread:80,
+    origin:{x:e.clientX/window.innerWidth,y:e.clientY/window.innerHeight},
+    shapes:['heart'],colors:['#ff4d6d','#ff85a2']});
+}
+
+/* ============================================================
+   MEMORY PHOTO PREVIEW (lightbox)
+   ============================================================ */
+function openPreview(src){
+  const lb=document.createElement("div");
+  lb.style.cssText="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);display:flex;justify-content:center;align-items:center;z-index:9000;";
+  lb.onclick=()=>lb.remove();
+  const img=document.createElement("img");
+  img.src=src;
+  img.style.cssText="max-width:90%;max-height:80%;border:5px solid white;border-radius:10px;";
+  lb.appendChild(img);
+  document.body.appendChild(lb);
+}
+
+/* ============================================================
+   SECRET FINAL MESSAGE
+   ============================================================ */
+function closeSecret(){
+  document.getElementById("secret-final").classList.remove("show");
+}
+// Apply the editable secret message
+document.getElementById('secret-final').innerHTML = SECRET_MESSAGE;
+// Apply countdown label
+document.getElementById('countdown-label').textContent = COUNTDOWN_LABEL;
+
+/* ============================================================
+   MUSIC PLAYER / VISUALIZER
+   ============================================================ */
+let songPlaying = true;
+let panelOpen = false;
+const songAudio = document.getElementById('bg-music');
+const bars = document.querySelectorAll('.v-bar');
+
+function toggleSong(){
+  panelOpen = !panelOpen;
+  document.getElementById('song-panel').classList.toggle('open', panelOpen);
+}
+
+function togglePlayPause(){
+  if(songPlaying){
+    songAudio.pause();
+    bars.forEach(b=>b.style.animationPlayState='paused');
+    document.getElementById('song-toggle').textContent='▶ Play';
+    songPlaying=false;
+  } else {
+    songAudio.play();
+    bars.forEach(b=>b.style.animationPlayState='running');
+    document.getElementById('song-toggle').textContent='⏸ Pause';
+    songPlaying=true;
+  }
+}
+
+songAudio.addEventListener('pause',()=>{
+  bars.forEach(b=>b.style.animationPlayState='paused');
+  document.getElementById('song-toggle').textContent='▶ Play';
+  songPlaying=false;
+});
+songAudio.addEventListener('play',()=>{
+  bars.forEach(b=>b.style.animationPlayState='running');
+  document.getElementById('song-toggle').textContent='⏸ Pause';
+  songPlaying=true;
+});
+
+/* ============================================================
+   COUNTDOWN TIMER
+   ============================================================ */
+function updateCountdown(){
+  const start = new Date(ANNIVERSARY_DATE);
+  const now = new Date();
+  const diff = now - start;
+  const days = Math.floor(diff / (1000*60*60*24));
+  const hours = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+  const mins = Math.floor((diff % (1000*60*60)) / (1000*60));
+  const secs = Math.floor((diff % (1000*60)) / 1000);
+  document.getElementById('cd-days').textContent = days;
+  document.getElementById('cd-hours').textContent = hours;
+  document.getElementById('cd-mins').textContent = mins;
+  document.getElementById('cd-secs').textContent = secs;
+}
+updateCountdown();
+setInterval(updateCountdown, 1000);
+
+/* ============================================================
+   TYPEWRITER LETTER
+   ============================================================ */
+let typed=false;
+function startTyping(){
+  if(typed)return;
+  typed=true;
+  const t=document.getElementById("typewriter-area");
+  let partIndex=0, i=0;
+  const spans=[];
+  textParts.forEach(part=>{
+    const s=document.createElement('span');
+    if(part.center){s.style.display='block';s.style.textAlign='center';}
+    t.appendChild(s);
+    spans.push(s);
+  });
+  function type(){
+    if(partIndex>=textParts.length){
+      document.getElementById("letter-card").onclick=()=>{
+        document.getElementById("secret-final").classList.add("show");
+        confetti({particleCount:300,spread:160});
+      };
+      return;
+    }
+    const part=textParts[partIndex];
+    if(i<part.t.length){
+      spans[partIndex].innerHTML += part.t.charAt(i)==='\n' ? '<br>' : part.t.charAt(i);
+      i++;
+      const card=document.getElementById('letter-card');
+      card.scrollTop=card.scrollHeight;
+      setTimeout(type,35);
+    } else {
+      partIndex++; i=0; setTimeout(type,35);
+    }
+  }
+  type();
+}
+</script>
+
+</body>
+</html>
